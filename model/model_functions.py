@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
 from sklearn import svm
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.decomposition import PCA
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
@@ -27,6 +28,8 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split
 
 from sklearn.metrics import f1_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import plot_confusion_matrix
@@ -111,6 +114,114 @@ def feature_selector(model, splits, X, y, i):
 
 
 # Evaluation Functions
+def f1_threshold(y_true, y_pred_proba, threshold):
+    
+    """
+    Returns the F-beta score.
+
+    Parameters:
+        y_true (1D numpy array): 1D array of true binary labels 
+                                 np.array([0, 1, 0, 0, ..]).
+        y_pred_proba (1D numpy array): 1D array of prediction probabilities 
+                                       for the positive class
+                                       (model.predict_proba(X)[:, 1])
+                                       np.array([0.12, 0.56, 0.23, 0.89, ..]).
+        threshold (float): The probability threshold, which is a number 
+                           between 0 and 1.
+
+    Returns:
+        (float): The F1 score given a threshold.
+    """
+    
+    # Calculate the binary predictions
+    y_pred = (y_pred_proba >= threshold).astype(int)
+    
+    return f1_score(y_true, y_pred, average='weighted')
+
+
+def plot_f1_threshold(X, y, model):
+    
+    """
+    Returns the F-beta score.
+
+    Parameters:
+        y_true (1D numpy array): 1D array of true binary labels 
+                                 np.array([0, 1, 0, 0, ..]).
+        y_pred_proba (1D numpy array): 1D array of prediction probabilities 
+                                       for the positive class
+                                       (model.predict_proba(X)[:, 1])
+                                       np.array([0.12, 0.56, 0.23, 0.89, ..]).
+        threshold (float): The probability threshold, which is a number 
+                           between 0 and 1.
+    """
+
+    # Create threshold array
+    thresholds = np.arange(0, 1, 0.01)
+    
+    # Compute F1 scores for each threshold
+    f1_scores = np.array([f1_threshold(y.values.flatten(), model.predict_proba(X)[:, 1], threshold) 
+                          for threshold in np.arange(0, 1, 0.01)])
+    
+    # Get finite values
+    thresholds = thresholds[np.isfinite(f1_scores)]
+    f1_scores = f1_scores[np.isfinite(f1_scores)]
+    
+    # Optimal values
+    idx = np.argmax(f1_scores)
+    f1_score = f1_scores[idx]
+    threshold = thresholds[idx]
+
+    # Plot
+    fig = plt.figure(figsize=(12, 4))
+    fig.subplots_adjust(wspace=0.2, hspace=0)
+    ax1 = plt.subplot2grid((1, 2), (0, 0))
+    ax2 = plt.subplot2grid((1, 2), (0, 1))
+    ax1.set_title('Optimal F1 score is {:.2f} for a threshold of {:.2f}.'.format(f1_score, threshold), fontsize=12)
+    ax1.plot(thresholds, f1_scores, '.-')
+    ax1.plot([threshold, threshold], [0, 1], '-', label='Optimal F1')
+    ax1.legend()
+    ax1.set_xlabel('Threshold')
+    ax1.set_ylabel('F1 Score')
+    ax1.set_xlim([0, 1])
+    ax1.set_ylim([0, 1])
+    
+    # Get PR curve
+    prc_precisions, prc_recalls, prc_thresholds = precision_recall_curve(y.values.flatten(), model.predict_proba(X)[:, 1])
+    precision_opt = precision_score(y.values.flatten(), (model.predict_proba(X)[:, 1] >= threshold).astype(int))
+    recall_opt = recall_score(y.values.flatten(), (model.predict_proba(X)[:, 1] >= threshold).astype(int))
+    
+    # Plot
+    ax2.set_title('Optimal Precision is {:.2f} and recall is {:.2f}.'.format(precision_opt, recall_opt), fontsize=12)
+    ax2.plot(prc_recalls, prc_precisions)
+    ax2.plot(recall_opt, precision_opt, 'o', label='Optimal PR')
+    ax2.legend()
+    ax2.set_xlabel('Recall')
+    ax2.set_ylabel('Precision')
+    ax2.set_xlim([0, 1])
+    ax2.set_ylim([0, 1])
+    
+
+def plot_roc(y_true, y_prob):
+    """
+    Plots the roc curve for given
+    y_true {0,1}, y_predicted probabilities, both 1d array like.
+    y_prob should = model.predict_proba(X_train)
+    """
+    # Get the false pos rate, true pos rate, and thresholds
+    fpr, tpr, thresholds = roc_curve(y_true, y_prob[:,1], pos_label=1)
+    
+    # plot false positive rate vs true positive rate and compare to the 1:1 line (which is random guess)
+    fig, ax = plt.subplots(figsize=(12,8))
+    plt.plot(fpr, tpr, label='model')
+    fig.suptitle('ROC Curve for Model')
+    plt.xlabel('False Positivity Rate (1- Specificity)')
+    plt.ylabel('Ture Positivity Rate (1- Specificity)') 
+    plt.plot([0,1],[0,1], transform=ax.transAxes, label='random guess')
+    plt.legend()
+    ax.set_xlim([0,1])
+    ax.set_ylim([0,1])
+
+    plt.show()
 
 
 
