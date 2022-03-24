@@ -11,6 +11,7 @@ import pandas as pd
 import geopandas as gpd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from shapely import wkt
 
 # SCIKIT Learn IMPORTS:
 from sklearn.linear_model import LogisticRegression
