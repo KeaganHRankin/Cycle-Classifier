@@ -47,7 +47,7 @@ from scipy.stats import uniform
 
 
 # Feature Engineering Functions
-def ysign_droprows(data, keep):
+def droprows(data, keep):
     """
     Function drops rows that are not passed in 'keep' list.
     """
@@ -58,9 +58,10 @@ def ysign_droprows(data, keep):
     return data_drop
 
 
-def ysign_scale(data, scale_feats):
+def scale_and_dummy(data, scale_feats, dummy_feats):
     """
-    Scales the passed columns of the ysign data.
+    Scales the passed columns of data.
+    Dummy encode categorical features passed.
     """
     
     # Create scaler
@@ -71,10 +72,65 @@ def ysign_scale(data, scale_feats):
     
     # Convert numeric features to standard units
     scaled = scaler.transform(scaled)
-    
     data[scale_feats] = scaled
     
+    # Convert categorical features using dummy encoding. 
+    #Drop the encoded features from the frame.
+    for s in dummy_feats:
+        categorical = pd.get_dummies(data[s], prefix=s, drop_first=True)
+        data = pd.concat((data, categorical), axis=1)
+        
+    data = data.drop(dummy_feats, axis=1)
+    
     return data
+
+
+def add_regions(data, components, bins):
+    """
+    function extract PC of Toronto's geometry and bins it into a # of regions.
+    
+    takes: in data, # of components, and # of bins.
+    returns: the training data with x_regions and y_regions labels for dummy encoding.
+    """
+    # Extract the centroids of the LINESTRING geometry.
+    # Also return the x y components of these centroids
+    data_g = data.copy()
+    data_g['geometry'] = data_g['geometry'].apply(wkt.loads)
+    train_data_gpd = gpd.GeoDataFrame(data_g, crs="EPSG:26917")
+    train_data_gpd.head()
+    
+    centroids = train_data_gpd['geometry'].centroid
+    centroids_df = pd.DataFrame(data={'x':centroids.x, 'y':centroids.y})
+    
+    # Scale features.
+    scaler = StandardScaler().fit(centroids_df)
+    X_scaled = scaler.transform(centroids_df)
+    
+    # Create/fit PCA function.
+    pca = PCA(n_components=components)
+    X_transformed = pca.fit_transform(X_scaled)
+    X_transformed_df = pd.DataFrame(X_transformed)
+    
+    # Print results.
+    for i in range(components):
+        print('Principal component', i)
+        print('explains', (pca.explained_variance_ratio_[i] * 100), '% of the variance in "lon" and "lat".')
+    
+    # Return inversed values
+    X_new = pca.inverse_transform(X_transformed)
+    X_new = scaler.inverse_transform(X_new)
+    X_new_df = pd.DataFrame(X_new)
+    
+    # Bin geographic regions based on components
+    out = pd.qcut(X_transformed_df[0], bins, labels=np.arange(1,bins+1,1))
+    out2 = pd.qcut(X_transformed_df[1], bins, labels=np.arange(1,bins+1,1))   
+    
+    #Append the bin labels to the geo data.
+    data_g['x_region'] = out
+    data_g['y_region'] = out2
+    
+    #return X_transformed_df, centroids_df
+    return data_g
 
 # Feature Selection Functions
 def feature_selector(model, splits, X, y, i):
