@@ -58,6 +58,35 @@ def droprows(data, keep):
     return data_drop
 
 
+def scale(data, scale_feats):
+    """ 
+    Just scales feats
+    """
+    # Create scaler
+    scaler = StandardScaler()
+    scaler.fit(data[scale_feats])
+    
+    scaled = data[scale_feats].copy()
+    
+    # Convert numeric features to standard units
+    scaled = scaler.transform(scaled)
+    data[scale_feats] = scaled
+    
+    return data
+
+
+def dummy(data, dummy_feats):
+    """
+    Just dummies features
+    """
+    for s in dummy_feats:
+        categorical = pd.get_dummies(data[s], prefix=s, drop_first=True)
+        data = pd.concat((data, categorical), axis=1)
+        
+    data = data.drop(dummy_feats, axis=1)
+    
+    return data    
+    
 def scale_and_dummy(data, scale_feats, dummy_feats):
     """
     Scales the passed columns of data.
@@ -85,17 +114,20 @@ def scale_and_dummy(data, scale_feats, dummy_feats):
     return data
 
 
-def add_regions(data, components, bins):
+def add_regions(data, components, bins, string_bool):
     """
     function extract PC of Toronto's geometry and bins it into a # of regions.
     
     takes: in data, # of components, and # of bins.
     returns: the training data with x_regions and y_regions labels for dummy encoding.
+    string
     """
     # Extract the centroids of the LINESTRING geometry.
     # Also return the x y components of these centroids
     data_g = data.copy()
-    data_g['geometry'] = data_g['geometry'].apply(wkt.loads)
+    if string_bool = True
+        data_g['geometry'] = data_g['geometry'].apply(wkt.loads)
+        
     train_data_gpd = gpd.GeoDataFrame(data_g, crs="EPSG:26917")
     train_data_gpd.head()
     
@@ -136,7 +168,7 @@ def add_regions(data, components, bins):
 def feature_selector(model, splits, X, y, i):
     """ 
     Selects features for the given model based on Kfold validation.
-    inputs are splits, model + xy, and i-1# of best features.
+    inputs are splits, model + xy, and i# of best features.
     """
     
     # Initial setup
@@ -161,7 +193,8 @@ def feature_selector(model, splits, X, y, i):
         
         # Show prelim F1 score
         f1s.append(f1_score(y.iloc[val_index],
-                            model.predict(X_new.iloc[val_index, :])
+                            model.predict(X_new.iloc[val_index, :]),
+                            average='weighted',
                            )
                   )
         
