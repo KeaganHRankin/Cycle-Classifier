@@ -48,7 +48,7 @@ from scipy.stats import uniform
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
-# Feature Engineering Functions
+# feature_engineering_functions
 
 
 def droprows(data, keep):
