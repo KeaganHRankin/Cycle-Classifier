@@ -24,10 +24,11 @@ from sklearn.preprocessing import MinMaxScaler
 
 from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.model_selection import RandomizedSearchCV
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold, GroupKFold, cross_val_score
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split
 
+from sklearn.metrics import mean_squared_error
 from sklearn.metrics import f1_score
 from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
@@ -46,7 +47,10 @@ from scipy.stats import uniform
 # Data Cleaning Functions
 
 
+#-------------------------------------------------------------------------------------------------------------------------------
 # Feature Engineering Functions
+
+
 def droprows(data, keep):
     """
     Function drops rows that are not passed in 'keep' list.
@@ -163,7 +167,52 @@ def add_regions(data, components, bins):
     #return X_transformed_df, centroids_df
     return data_g
 
+#--------------------------------------------------------------------------------------------------------------------------------
 # Feature Selection Functions
+
+
+def spatial_cv(model, grouper, splits, X, y):
+    """
+    Function performs spatial Cross Val based on the past grouping labels.
+    
+    model = sklearn model to be fit.
+    grouper = labels in the data's index order of spatial k-folds (ex. neighbourhood, clusters).
+    data = data 
+    """
+    #Init the group Kfold with n splits.
+    group_kfold = GroupKFold(n_splits=splits)
+    
+    i = 1
+    
+    f1s = []
+    accs = []
+    mse = []
+    #Loop Through the train and val index, perform cv
+    for train_index, val_index in group_kfold.split(X, y, grouper):
+        
+        # Fit model
+        model.fit(X.iloc[train_index, :],
+                  y.iloc[train_index])
+        
+        # Append scores for that loop
+        f1s.append(f1_score(y.iloc[val_index],
+                    model.predict(X.iloc[val_index, :]),
+                    average='weighted'))
+        
+        accs.append(accuracy_score(y.iloc[val_index],
+                    model.predict(X.iloc[val_index, :]),
+                  ))
+        
+        mse.append(mean_squared_error(y.iloc[val_index],
+                    model.predict(X.iloc[val_index, :]),
+                  ))
+        
+    #Print the results
+    print('Mean fold weighted F1 Score: {}'.format(np.mean(f1s)))
+    print('Mean fold accuracy Score: {}'.format(np.mean(accs)))
+    print('Mean fold MSE: {}'.format(np.mean(mse)))
+
+
 def feature_selector(model, splits, X, y, i):
     """ 
     Selects features for the given model based on Kfold validation.
@@ -199,10 +248,16 @@ def feature_selector(model, splits, X, y, i):
         
     print('Mean fold F1 Score: {}'.format(np.mean(f1s)))
 
+    
+#-------------------------------------------------------------------------------------------------------------------------------
 # Hyper Parameter Tuning Functions
 
 
+
+#-------------------------------------------------------------------------------------------------------------------------------
 # Evaluation Functions
+
+
 def f1_threshold(y_true, y_pred_proba, threshold):
     
     """
