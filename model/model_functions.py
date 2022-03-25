@@ -114,7 +114,7 @@ def scale_and_dummy(data, scale_feats, dummy_feats):
     return data
 
 
-def add_regions(data, components, bins, string_bool):
+def add_regions(data, components, bins):
     """
     function extract PC of Toronto's geometry and bins it into a # of regions.
     
@@ -125,8 +125,7 @@ def add_regions(data, components, bins, string_bool):
     # Extract the centroids of the LINESTRING geometry.
     # Also return the x y components of these centroids
     data_g = data.copy()
-    if string_bool = True
-        data_g['geometry'] = data_g['geometry'].apply(wkt.loads)
+    data_g['geometry'] = data_g['geometry'].apply(wkt.loads)
         
     train_data_gpd = gpd.GeoDataFrame(data_g, crs="EPSG:26917")
     train_data_gpd.head()
