@@ -4,7 +4,7 @@
 This repo contains a proof-of-concept machine learning classifier, created by Saad Akbar and Keagan Rankin at the University of Toronto, that classifies roads as high-stress or low-stress for cyclists based on a set of features. The classifier attempts to reduce the volume of work required in the popular LTS classification method ([Furth et al. in 2016](https://journals.sagepub.com/doi/pdf/10.3141/2587-06), [Imani et al. 2019](https://journals.sagepub.com/doi/10.3141/2587-06), [Lin et al. 2021](https://findingspress.org/article/19069-the-impact-of-covid-19-cycling-infrastructure-on-low-stress-cycling-accessibility-a-case-study-in-the-city-of-toronto)) the model was trained using open Toronto data and labels [from](https://github.com/lin-bo/Toronto_LTS_network) the cited literature.
 
 ## Usage
-The final models are saved in _____.py. These models vary based on input features. Models can be saved as a binary and run/improved on data/labels from other cities.
+The final models are saved in all_roads_model.py and all_modes_model.py in the projsubmission folder. These models vary based on input features (see train data folder for feature format). Models can be saved as a binary and used for prediciton or improved training on data/labels from other cities.
 
 see _____.txt for dependencies
 
