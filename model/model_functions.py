@@ -79,6 +79,23 @@ def scale(data, scale_feats):
     return data
 
 
+def scale_minmax(data, scale_feats):
+    """ 
+    Just scales feats
+    """
+    # Create scaler
+    scaler = MinMaxScaler()
+    scaler.fit(data[scale_feats])
+    
+    scaled = data[scale_feats].copy()
+    
+    # Convert numeric features to standard units
+    scaled = scaler.transform(scaled)
+    data[scale_feats] = scaled
+    
+    return data
+
+
 def dummy(data, dummy_feats):
     """
     Just dummies features
@@ -90,7 +107,8 @@ def dummy(data, dummy_feats):
     data = data.drop(dummy_feats, axis=1)
     
     return data    
-    
+
+
 def scale_and_dummy(data, scale_feats, dummy_feats):
     """
     Scales the passed columns of data.
