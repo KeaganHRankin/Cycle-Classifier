@@ -1,4 +1,6 @@
 """
+ALL ROADS MODEL -> USES the typology of the road as defined by the City or Provincial/Federal Government to make predicitons.
+
 This .py file deploys the proof-of-concept model for classifying the bike accessibility of roads.
 The model should be trained with appropriate data format (see example datasets in this repo).
 It can then output the predicited stress of a road for any city.
@@ -16,6 +18,7 @@ import pickle
 def train(train_data, model_name, save_model=False, metrics=False):
     """
     trains the model given data and what model to use.
+    
     train_data = training data in the format of centrelinebike_train_spatial.csv.
     model_name = 'forest' or 'log' to train the model on either of these types of models.
     save_model = True/False whether to pickle the model.
@@ -81,17 +84,6 @@ def train(train_data, model_name, save_model=False, metrics=False):
 
         # spatial_cv
         spatial_cv(model, grouper=X_train['AREA_ID'], splits=141, X=X_train[features], y=y_train_access)
-
-        # Confusion matrix
-        f, ax = plt.subplots(figsize=(10, 10))
-        plot_confusion_matrix(model, X_train[features], y_train_access, ax=ax)
-        ax.grid(False)
-
-        #Weighted F1 score with optimal threshold if relevant
-        plot_f1_threshold(X_train[features], y_train_access, model)
-
-        #roc curve
-        plot_roc(y_train_access, model.predict_proba(X_train[features]))
         
     else:
         print('[INFO] skipping metrics.')
@@ -106,6 +98,7 @@ def train(train_data, model_name, save_model=False, metrics=False):
 def predict(data, model='', model_fname='model_1.pkl'):
     """
     Takes in a trained model (either just trained or from saved) and returns predictions + probabilities.
+    
     data = test data in the format of centrelinebike_train_spatial.csv.
     model = trained model to use. Can be left empty.
     model_fname = model used if model name is not defined.
