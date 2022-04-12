@@ -8,7 +8,7 @@ This repo contains two proof-of-concept machine learning classifiers, created by
 ## Usage
 The final models are saved in all_roads_model.py and all_modes_model.py in the projsubmission folder. See the notebook 'final_models.ipynb' in the same folder for an example of how to use the models. These models vary based on input features (see the files 'allmodes_train' and 'centrelinebike_train_spatial' in the train data folder for feature format). Models can be saved as a binary and used for prediciton or improved training on data/labels from other cities.
 
-see _____.txt for dependencies
+see dependencies.txt for dependencies
 
 ## Contributions
 Contact authors for comments or suggestions.
