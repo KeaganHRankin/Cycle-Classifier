@@ -10,7 +10,7 @@ The final models are saved in all_roads_model.py and all_modes_model.py in the p
 
 NOTE: AS OF CURRENT VERSION, FEATURE REGIONS AND FEATURE CREATION FUNCTION add_regions() SHOULD BE DROPPED FROM THE MODEL IF APPLYING IT TO CITIES OTHER THAN TORONTO.
 
-see dependencies.txt for dependencies
+see `dependencies.txt` for dependencies
 
 ## Contributions
 Contact authors for comments or suggestions.
