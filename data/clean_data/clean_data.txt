@@ -1,1 +1,0 @@
-This folder houses cleaned, processed data for use in the model
