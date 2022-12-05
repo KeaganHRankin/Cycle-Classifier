@@ -1,6 +1,8 @@
 # 1498-ML-Project: 
 ## Using Machine Learning to Classify the Cycling Accessibility of Roads
 
+![all roads results](https://user-images.githubusercontent.com/85196265/205710768-1ad9b6c4-f2ea-4b27-a9d8-bce899ad63fe.png)
+
 See our Medium article for further details: [click here](https://medium.com/@keagan.rankin/using-machine-learning-to-classify-the-cycling-accessibility-of-roads-34097042db97)
 
 This repo contains two proof-of-concept machine learning classifiers, created by Saad Akbar and Keagan Rankin at University of Toronto, that classifies roads as high-stress or low-stress for cyclists based on a set of features. The classifier attempts to reduce the volume of work required in the popular LTS classification method ([Furth et al. in 2016](https://journals.sagepub.com/doi/pdf/10.3141/2587-06), [Imani et al. 2019](https://journals.sagepub.com/doi/10.3141/2587-06), [Lin et al. 2021](https://findingspress.org/article/19069-the-impact-of-covid-19-cycling-infrastructure-on-low-stress-cycling-accessibility-a-case-study-in-the-city-of-toronto)) the model was trained using open Toronto data and labels [from](https://github.com/lin-bo/Toronto_LTS_network) the cited literature.
